@@ -1,0 +1,6 @@
+---
+- name: Install GNU Make
+  apt:
+    name: make
+    state: latest
+

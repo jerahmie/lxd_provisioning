@@ -1,0 +1,6 @@
+---
+- name: install git from repository
+  apt:
+    name: git
+    state: latest
+

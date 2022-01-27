@@ -1,0 +1,6 @@
+---
+  - name: install USB utilities
+    apt:
+      name: usbutils
+      state: latest
+

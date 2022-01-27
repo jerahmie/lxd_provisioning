@@ -1,0 +1,81 @@
+---
+- name: STM32 development playbook
+  hosts: stm32
+  roles:
+    - app_git
+    - app_make
+    - app_cmake
+    - app_zip
+    - app_libusb
+    - app_usbutils
+    - app_hexedit
+
+  tasks:
+  - name: create build directory for stm32 tools
+    file:
+      path: /build
+      state: directory
+
+  - name: clone stm32 repository
+    ansible.builtin.git:
+      repo: https://github.com/ve3wwg/stm32f103c8t6.git
+      force: no
+      update: no
+      dest: /build/stm32f103c8t6
+
+  - name: clone libopencm3 library
+    ansible.builtin.git:
+      repo: https://github.com/libopencm3/libopencm3.git
+      dest: /build/stm32f103c8t6/libopencm3
+
+  - name: copy FreeRTOS 
+    ansible.builtin.copy:
+      src: files/FreeRTOSv202112.00.zip 
+      dest: /tmp
+
+  - name: extact FreeRTOS
+    ansible.builtin.unarchive:
+      src: /tmp/FreeRTOSv202112.00.zip
+      dest: /build/stm32f103c8t6/rtos/
+      remote_src: yes
+
+  - name: set FreeRTOS version
+    ansible.builtin.lineinfile:
+      path: /build/stm32f103c8t6/rtos/Project.mk
+      regexp: '^FREERTOS.*FreeRTOSv10.0.1$'
+      line: FREERTOS        ?= FreeRTOSv202112.00
+
+  - name: create gcc-arm location
+    file:
+      path: /opt
+      state: directory
+
+  - name: copy gcc-arm archive
+    ansible.builtin.copy:
+      src: files/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+      dest: /tmp
+
+  - name: extract gcc-arm collection to /opt
+    ansible.builtin.unarchive:
+      src: /tmp/gcc-arm-none-eabi-10.3-2021.10-x86_64-linux.tar.bz2
+      dest: /opt
+      remote_src: yes
+
+  - name: update bashrc file to include gcc-arm path
+    copy:
+      src: files/bashrc_stm32dev
+      dest: /root/.bashrc
+
+  - name: clone st-link tool
+    ansible.builtin.git:
+      repo: https://github.com/stlink-org/stlink
+      dest: /build/stlink
+      version: v1.7.0
+      force: no
+      update: no
+
+  - name: build and install st-link tool
+    command: chdir=/build/stlink/ {{ item }} 
+    with_items:
+      - cmake .
+      - make install

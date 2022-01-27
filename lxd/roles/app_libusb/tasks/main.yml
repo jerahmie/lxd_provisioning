@@ -1,0 +1,11 @@
+---
+  - name: install libusb development libraries
+    apt:
+      name: libusb-dev
+      state: latest
+
+  - name: install libusb-1.0-0 deveopment libraries
+    apt:
+      name: libusb-1.0-0-dev
+      state: latest
+

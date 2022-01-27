@@ -1,0 +1,6 @@
+---
+  - name: install zip archiver utility
+    apt:
+      name: zip
+      state: latest
+ 

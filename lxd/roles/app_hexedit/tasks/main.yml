@@ -1,0 +1,6 @@
+---
+  - name: install hexedit hexadecimal editor
+    apt:
+      name: hexedit
+      state: latest
+
